@@ -60,8 +60,19 @@ done
 ```
 
 ### Ваш скрипт:
+Нет закрывающей скобки в первой строке и нет выхода по условию из цикла . так же добавим таймаут 10сек
 ```bash
-???
+#!/usr/bin/env bash
+while (( 1 == 1 ))
+do
+	curl https://localhost:4757
+	if (($? != 0))
+	then
+		date >> curl.log
+	else exit
+	fi
+sleep 10
+done
 ```
 
 ---
@@ -72,7 +83,42 @@ done
 
 ### Ваш скрипт:
 ```bash
-???
+vagrant@devsys24:~/scripts$ cat check_hosts.sh 
+#!/usr/bin/env bash
+ip=(192.168.1.64 173.194.222.113 87.250.250.24)
+t=3
+b=0
+
+while  (($b == 0))
+do
+        for a in ${ip[@]}
+        do
+        	curl -s --connect-timeout $t $a:80 >/dev/null
+        	b=$?
+        	if (($b != 0))
+        	then echo " недоступен" $a result=$?
+        	fi
+        done
+done
+vagrant@devsys24:~/scripts$ bash check_hosts.sh 
+vagrant@devsys24:~/scripts$ cat check_hosts.log
+ ответ от 192.168.1.64 result=7
+ ответ от 173.194.222.113 result=0
+ ответ от 87.250.250.24 result=28
+ ответ от 192.168.1.64 result=7
+ ответ от 173.194.222.113 result=0
+ ответ от 87.250.250.24 result=28
+ ответ от 192.168.1.64 result=7
+ ответ от 173.194.222.113 result=0
+ ответ от 87.250.250.24 result=28
+ ответ от 192.168.1.64 result=7
+ ответ от 173.194.222.113 result=0
+ ответ от 87.250.250.24 result=28
+ ответ от 192.168.1.64 result=7
+ ответ от 173.194.222.113 result=0
+ ответ от 87.250.250.24 result=28
+vagrant@devsys24:~/scripts$ 
+
 ```
 
 ---
@@ -82,7 +128,25 @@ done
 
 ### Ваш скрипт:
 ```bash
-???
+vagrant@devsys24:~/scripts$ cat break_hosts.sh 
+#!/usr/bin/env bash
+ip=(192.168.0.1 173.194.222.113 87.250.250.24)
+while ((1==1))
+do
+        for i in "${ip[@]}"
+        do
+                nc -z $i 80
+                if (($? != 0))
+                then
+                        echo $i > error
+                        exit 0
+                fi
+        done
+done
+vagrant@devsys24:~/scripts$ bash break_hosts.sh
+vagrant@devsys24:~/scripts$ cat error 
+192.168.0.1
+vagrant@devsys24:~/scripts$
 ```
 
 ---
